@@ -1,0 +1,1932 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Chillflow Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500;600&display=swap">
+<style>
+:root {
+  --bg: #f2f7f9;
+  --surface: #ffffff;
+  --surface-2: #e8f1f4;
+  --ink: #1e293b;
+  --muted: #64748b;
+  --rule: #cbd5e1;
+  --grid: rgba(13, 148, 136, 0.08);
+  --wire: #475569;
+
+  --accent: #0d9488;
+  --accent-hover: #0f766e;
+  --accent-light: #ccfbf1;
+  --accent-ink: #ffffff;
+  --azure: #0284c7;
+  --azure-light: #e0f2fe;
+
+  --lime: #65a30d;
+  --lime-bg: #ecfccb;
+  --lime-ink: #3f6212;
+  --orange: #f97316;
+  --orange-bg: #ffedd5;
+  --orange-ink: #c2410c;
+
+  --hot: #f97316;
+  --err: #e11d48;
+  --err-bg: #ffe4e6;
+  --ok: #16a34a;
+  --ok-bg: #dcfce7;
+  --chg: #fef9c3;
+
+  --term-f: #e0f2fe; --term-s: #0284c7;
+  --asg-f: #ccfbf1;  --asg-s: #0d9488;
+  --io-f: #fef3c7;   --io-s: #d97706;
+  --dec-f: #e0e7ff;  --dec-s: #4f46e5;
+  --loop-f: #e0f2fe; --loop-s: #2563eb;
+
+  --shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+  --display: "Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --sans: "IBM Plex Sans", -apple-system, sans-serif;
+  --mono: "JetBrains Mono", monospace;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #0f172a;
+    --surface: #1e293b;
+    --surface-2: #334155;
+    --ink: #f8fafc;
+    --muted: #94a3b8;
+    --rule: #334155;
+    --grid: rgba(204, 251, 241, 0.05);
+    --wire: #94a3b8;
+
+    --accent: #14b8a6;
+    --accent-hover: #2dd4bf;
+    --accent-light: #134e4a;
+    --accent-ink: #0f172a;
+
+    --azure: #38bdf8;
+    --azure-light: #075985;
+
+    --lime: #84cc16;
+    --lime-bg: #365314;
+    --lime-ink: #ecfccb;
+
+    --orange: #fb923c;
+    --orange-bg: #7c2d12;
+    --orange-ink: #ffedd5;
+
+    --hot: #fb923c;
+    --err: #f43f5e;
+    --err-bg: #881337;
+    --ok: #22c55e;
+    --ok-bg: #14532d;
+    --chg: #422006;
+
+    --term-f: #1e3a5f; --term-s: #38bdf8;
+    --asg-f: #114e47;  --asg-s: #2dd4bf;
+    --io-f: #451a03;   --io-s: #f59e0b;
+    --dec-f: #312e81;  --dec-s: #818cf8;
+    --loop-f: #1e3a8a; --loop-s: #60a5fa;
+
+    --shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.5);
+    color-scheme: dark;
+  }
+}
+
+* { box-sizing: border-box; }
+[hidden] { display: none !important; }
+html, body { height: 100%; margin: 0; padding: 0; overflow: hidden; }
+body {
+  background: var(--bg);
+  color: var(--ink);
+  font: 400 14px/1.45 var(--sans);
+  padding-left: max(12px, env(safe-area-inset-left, 0px));
+  padding-right: max(12px, env(safe-area-inset-right, 0px));
+  display: flex;
+  flex-direction: column;
+}
+
+button, input, select, textarea { font: inherit; color: inherit; }
+.app { flex: 1; min-height: 0; display: flex; flex-direction: column; height: 100vh; }
+
+/* Testata principale */
+.top {
+  flex: 0 0 auto;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 14px;
+  padding-block: 10px;
+}
+.brand { display: flex; align-items: center; gap: 10px; }
+.brand h1 { font: 700 21px/1 var(--display); letter-spacing: -0.01em; margin: 0; color: var(--ink); }
+.brand small { display: block; font: 500 12px var(--sans); color: var(--muted); margin-top: 2px; }
+.tools { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; }
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-height: 36px;
+  padding: 6px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 9px;
+  background: var(--surface);
+  font: 500 13px var(--sans);
+  cursor: pointer;
+  white-space: nowrap;
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+}
+.btn:hover:not(:disabled) { border-color: var(--accent); background: var(--surface-2); }
+.btn:active:not(:disabled) { transform: translateY(1px); }
+.btn:disabled { opacity: 0.45; cursor: default; }
+
+.btn.primary { background: var(--accent); color: var(--accent-ink); border-color: transparent; font-weight: 600; }
+.btn.primary:hover:not(:disabled) { background: var(--accent-hover); border-color: transparent; }
+
+.btn.lime { background: var(--lime); color: #ffffff; border-color: transparent; font-weight: 600; }
+.btn.lime:hover:not(:disabled) { filter: brightness(1.08); }
+
+.btn.stop-btn {
+  background: linear-gradient(135deg, #f43f5e, #e11d48);
+  color: #ffffff;
+  border-color: transparent;
+  font-weight: 600;
+  box-shadow: 0 2px 8px rgba(225, 29, 72, 0.25);
+}
+.btn.stop-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, #fb7185, #f43f5e);
+  box-shadow: 0 4px 12px rgba(225, 29, 72, 0.35);
+}
+
+.btn.kofi {
+  background: #ffdd00;
+  color: #000000;
+  border-color: #e6c200;
+  font-weight: 600;
+  text-decoration: none;
+}
+.btn.kofi:hover { background: #ffe533; border-color: #d9b800; }
+
+.btn svg { width: 15px; height: 15px; flex: none; }
+.btn:focus-visible, .icon-btn:focus-visible, select:focus-visible, input:focus-visible, textarea:focus-visible, .type:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+select.btn {
+  padding-right: 26px;
+  appearance: none;
+  -webkit-appearance: none;
+  background-image: linear-gradient(45deg, transparent 50%, var(--muted) 50%), linear-gradient(135deg, var(--muted) 50%, transparent 50%);
+  background-position: calc(100% - 14px) 15px, calc(100% - 9px) 15px;
+  background-size: 5px 5px;
+  background-repeat: no-repeat;
+}
+
+/* Area di lavoro a layout fisso */
+.work {
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 350px;
+  gap: 12px;
+  padding-block-end: 12px;
+  overflow: hidden;
+}
+
+.stage {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  overflow: hidden;
+  background: var(--surface);
+  box-shadow: var(--shadow);
+}
+
+.stagebar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 6px 12px;
+  padding: 8px 12px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface-2);
+}
+
+.hint { font-size: 12.5px; color: var(--muted); min-width: 0; }
+.hint b { color: var(--accent); }
+.hint.locked { color: var(--orange-ink); font-weight: 500; }
+
+.zoom { display: flex; align-items: center; gap: 4px; }
+.icon-btn {
+  width: 30px;
+  height: 30px;
+  display: inline-grid;
+  place-items: center;
+  border: 1px solid var(--rule);
+  border-radius: 7px;
+  background: var(--surface);
+  cursor: pointer;
+  font: 600 14px var(--sans);
+  transition: all 0.15s;
+}
+.icon-btn:hover { border-color: var(--accent); background: var(--surface-2); }
+.zoom .pct { font: 500 12px var(--mono); color: var(--muted); min-width: 40px; text-align: center; font-variant-numeric: tabular-nums; }
+.zoom .fit { width: auto; padding: 0 8px; font-size: 12px; }
+
+.scroller {
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 16px;
+  background-color: var(--surface);
+  background-image: linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 20px 20px;
+  background-attachment: local;
+  -webkit-overflow-scrolling: touch;
+}
+
+#chart { display: block; margin: 0 auto; user-select: none; -webkit-user-select: none; }
+
+/* Diagramma SVG */
+.wire { fill: none; stroke: var(--wire); stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; }
+.arrow, .dot { fill: var(--wire); }
+.blk .shape { stroke-width: 1.8; transition: stroke 0.2s, stroke-width 0.2s; }
+.t-start .shape, .t-end .shape { fill: var(--term-f); stroke: var(--term-s); }
+.t-assign .shape { fill: var(--asg-f); stroke: var(--asg-s); }
+.t-input .shape, .t-output .shape { fill: var(--io-f); stroke: var(--io-s); }
+.t-if .shape { fill: var(--dec-f); stroke: var(--dec-s); }
+.t-while .shape { fill: var(--loop-f); stroke: var(--loop-s); }
+
+.blk text { font: 500 13px var(--mono); fill: var(--ink); text-anchor: middle; }
+.blk .kw { font-weight: 600; }
+.t-start .kw, .t-end .kw { fill: var(--term-s); font-family: var(--sans); font-weight: 700; }
+.t-assign .kw { fill: var(--asg-s); }
+.t-input .kw, .t-output .kw { fill: var(--io-s); }
+
+.blk[tabindex] { cursor: grab; }
+.blk[tabindex]:active { cursor: grabbing; }
+.blk[tabindex]:hover .shape { stroke-width: 2.8; filter: drop-shadow(0 2px 6px rgba(0,0,0,0.08)); }
+.blk:focus { outline: none; }
+.blk:focus-visible .shape { stroke: var(--accent); stroke-width: 3.2; }
+
+.blk.dragging { opacity: 0.35; filter: grayscale(0.5); }
+.blk.active .shape { stroke: var(--orange); stroke-width: 3.5; animation: pulse 1.2s ease-in-out infinite; }
+.blk.err .shape { stroke: var(--err); stroke-width: 3.5; }
+
+@keyframes pulse { 50% { stroke-opacity: 0.4; } }
+
+.lbl { font: 700 11px var(--sans); fill: var(--muted); letter-spacing: 0.05em; text-transform: uppercase; }
+.empty-msg { font: 500 13px var(--sans); fill: var(--muted); text-anchor: middle; }
+
+.slot { cursor: pointer; }
+.slot .hit { fill: transparent; }
+.slot .ring { fill: var(--surface); stroke: var(--accent); stroke-width: 1.8; transition: all 0.15s; }
+.slot .plus { stroke: var(--accent); stroke-width: 2.2; stroke-linecap: round; transition: all 0.15s; }
+.slot:hover .ring, .slot:focus-visible .ring { fill: var(--accent); transform: scale(1.15); transform-origin: center; }
+.slot:hover .plus, .slot:focus-visible .plus { stroke: var(--accent-ink); }
+.slot:focus { outline: none; }
+#chart.locked .slot { display: none; }
+
+.slot.drag-over .ring { fill: var(--lime); stroke: var(--lime-ink); transform: scale(1.5); filter: drop-shadow(0 0 6px var(--lime)); }
+.slot.drag-over .plus { stroke: var(--lime-ink); stroke-width: 2.6; }
+.slot.drag-invalid .ring { fill: var(--err); stroke: var(--err-bg); transform: scale(1.2); }
+.slot.drag-invalid .plus { stroke: #ffffff; }
+
+.drag-ghost {
+  position: fixed; top: 0; left: 0; pointer-events: none; z-index: 1000;
+  padding: 8px 14px; border-radius: 9px; background: var(--surface);
+  border: 2px solid var(--accent); box-shadow: 0 10px 25px rgba(0,0,0,0.22);
+  font: 600 13px var(--mono); color: var(--ink); display: flex; align-items: center; gap: 8px;
+  transform: translate(-50%, -50%); opacity: 0.94;
+}
+.drag-ghost.invalid { border-color: var(--err); background: var(--err-bg); color: var(--err); }
+
+.verdict rect { fill: var(--muted); }
+.verdict.v-true rect { fill: var(--ok); }
+.verdict.v-false rect { fill: var(--err); }
+.verdict text { font: 700 10.5px var(--sans); fill: #ffffff; letter-spacing: 0.05em; text-anchor: middle; }
+
+/* Pannello laterale a schede fisse */
+.side {
+  height: 100%;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  overflow: hidden;
+}
+.card { background: var(--surface); border: 1px solid var(--rule); border-radius: 12px; padding: 12px; box-shadow: var(--shadow); }
+.card h2 {
+  margin: 0 0 8px;
+  font: 700 11.5px var(--sans);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--muted);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+}
+
+.card.run-card { flex: 0 0 auto; }
+.runbar { display: grid; grid-template-columns: 1.2fr 1fr 1.1fr; gap: 8px; }
+
+.speed { display: flex; align-items: center; gap: 8px; margin-top: 10px; font-size: 12.5px; color: var(--muted); }
+.speed input { flex: 1; min-width: 0; accent-color: var(--accent); cursor: pointer; }
+.speed output { min-width: 62px; text-align: right; color: var(--ink); font-weight: 500; }
+
+.status { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-top: 10px; }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 3px 9px;
+  border-radius: 99px;
+  font: 600 11.5px var(--sans);
+  background: var(--surface-2);
+  color: var(--muted);
+  border: 1px solid var(--rule);
+}
+.chip::before { content: ""; width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+.chip.m-running { color: var(--accent); border-color: var(--accent); }
+.chip.m-paused, .chip.m-input { color: var(--hot); border-color: var(--hot); }
+.chip.m-done { color: var(--ok); border-color: var(--ok); }
+.chip.m-error { color: var(--err); border-color: var(--err); }
+
+.stepno { font: 500 12px var(--mono); color: var(--muted); font-variant-numeric: tabular-nums; }
+.msg { margin: 8px 0 0; padding: 7px 10px; border-radius: 8px; background: var(--surface-2); font: 500 12.5px/1.35 var(--mono); min-height: 36px; overflow-wrap: anywhere; }
+.msg.err { color: var(--err); background: var(--err-bg); }
+
+/* Scheda Variabili con formato fisso e tooltip */
+.card.vars {
+  flex: 1;
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.vars table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12.5px;
+  table-layout: fixed;
+}
+.vars th {
+  text-align: left;
+  font: 600 11px var(--sans);
+  color: var(--muted);
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--rule);
+  background: var(--surface-2);
+}
+.vars th:nth-child(1), .vars td:nth-child(1) { width: 30%; }
+.vars th:nth-child(2), .vars td:nth-child(2) { width: 45%; }
+.vars th:nth-child(3), .vars td:nth-child(3) { width: 25%; }
+
+.vars td {
+  padding: 5px 8px;
+  border-bottom: 1px solid var(--rule);
+  vertical-align: middle;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  cursor: default;
+}
+.vars tr:last-child td { border-bottom: 0; }
+.vars .vn { font: 600 12.5px var(--mono); color: var(--ink); }
+.vars .vv { font: 500 12.5px var(--mono); color: var(--ink); font-variant-numeric: tabular-nums; }
+.vars .vt { color: var(--muted); font-size: 11.5px; }
+.vars tr.chg td { background: var(--chg); }
+.vars .was { display: block; font: 400 11px var(--sans); color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+.tablewrap {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  overflow-x: auto;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+}
+.empty { color: var(--muted); font-size: 12.5px; margin: 4px 0; font-style: italic; }
+
+/* Console */
+.card.console {
+  flex: 1.2;
+  min-height: 160px;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+.log {
+  flex: 1;
+  min-height: 0;
+  overflow-y: auto;
+  background: var(--surface-2);
+  border-radius: 8px;
+  padding: 8px 10px;
+  font: 500 12.5px/1.45 var(--mono);
+  border: 1px solid var(--rule);
+}
+.ln { white-space: pre-wrap; overflow-wrap: anywhere; margin-bottom: 3px; }
+.ln:last-child { margin-bottom: 0; }
+.ln.in { color: var(--accent); font-weight: 600; }
+.ln.sys { color: var(--muted); font: italic 400 11.5px var(--sans); }
+.ln.err { color: var(--err); font-weight: 600; }
+.ln.warn { color: var(--orange-ink); }
+.ln.out { color: var(--ink); font-weight: 600; }
+
+.tablewrap:focus-visible, .log:focus-visible, .scroller:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+.inform { margin-top: 8px; display: grid; gap: 5px; }
+.inform label { font-size: 12px; font-weight: 600; color: var(--orange-ink); }
+.inrow { display: flex; gap: 6px; }
+.inrow input {
+  flex: 1;
+  min-width: 0;
+  padding: 6px 10px;
+  border: 2px solid var(--orange);
+  border-radius: 8px;
+  background: var(--surface);
+  font: 500 14px var(--mono);
+}
+
+/* Modali */
+.backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 50;
+  background: rgba(15, 23, 42, 0.55);
+  backdrop-filter: blur(2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: max(16px, env(safe-area-inset-top, 0px)) max(16px, env(safe-area-inset-right, 0px)) max(16px, env(safe-area-inset-bottom, 0px)) max(16px, env(safe-area-inset-left, 0px));
+}
+.modal {
+  width: 100%;
+  max-width: 520px;
+  max-height: 100%;
+  overflow: auto;
+  background: var(--surface);
+  border: 1px solid var(--rule);
+  border-radius: 14px;
+  box-shadow: var(--shadow);
+  padding: 16px 18px 18px;
+}
+.modal header { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 12px; }
+.modal h2 { margin: 0; font: 700 19px var(--display); color: var(--ink); }
+
+.types { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+.type {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 4px;
+  text-align: left;
+  padding: 10px 12px;
+  border: 1px solid var(--rule);
+  border-radius: 10px;
+  background: var(--surface);
+  cursor: pointer;
+  transition: all 0.15s;
+}
+.type:hover { border-color: var(--accent); background: var(--surface-2); transform: translateY(-1px); }
+.type b { font: 600 13.5px var(--sans); color: var(--ink); }
+.type span { font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+.type svg { width: 48px; height: 26px; margin-bottom: 2px; }
+
+.field { display: grid; gap: 4px; margin-bottom: 12px; }
+.field label { font: 600 12.5px var(--sans); color: var(--ink); }
+.field input, .modal textarea {
+  width: 100%;
+  padding: 8px 11px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  background: var(--surface-2);
+  font: 500 14px var(--mono);
+}
+.field input[aria-invalid="true"] { border-color: var(--err); background: var(--err-bg); }
+.ferr { color: var(--err); font-size: 12px; margin: 2px 0 0; }
+.ferr:empty { display: none; }
+
+details.help {
+  font-size: 12px;
+  color: var(--muted);
+  margin-bottom: 12px;
+  border: 1px solid var(--rule);
+  border-radius: 8px;
+  padding: 8px 10px;
+  background: var(--surface-2);
+}
+details.help summary { cursor: pointer; font-weight: 600; color: var(--ink); }
+details.help ul { margin: 6px 0 2px; padding-left: 16px; display: grid; gap: 3px; }
+details.help code { font-family: var(--mono); font-size: 11.5px; color: var(--accent); background: var(--surface); padding: 1px 4px; border-radius: 4px; border: 1px solid var(--rule); }
+
+.actions { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px; margin-top: 4px; }
+.actions .grp { display: flex; flex-wrap: wrap; gap: 6px; }
+.modal textarea { min-height: 180px; resize: vertical; font-size: 12.5px; }
+.modal p.note { font-size: 12.5px; color: var(--muted); margin: 0 0 10px; }
+
+.toast {
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(20px + env(safe-area-inset-bottom, 0px));
+  z-index: 60;
+  background: var(--ink);
+  color: var(--surface);
+  padding: 9px 16px;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 500;
+  box-shadow: var(--shadow);
+  max-width: calc(100% - 32px);
+  animation: fadeIn 0.2s ease-out;
+}
+
+@keyframes fadeIn { from { opacity: 0; transform: translate(-50%, 6px); } }
+
+.sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+
+@media (max-width: 900px) {
+  html, body { height: auto; overflow: auto; }
+  .app { height: auto; }
+  .work { grid-template-columns: minmax(0, 1fr); height: auto; overflow: visible; }
+  .stage { height: 55vh; min-height: 320px; }
+  .side { height: auto; overflow: visible; }
+  .card.vars, .card.console { flex: none; height: 220px; }
+}
+@media (prefers-reduced-motion: reduce) { .blk.active .shape { animation: none; } }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <header class="top">
+    <div class="brand">
+      <svg width="34" height="34" viewBox="0 0 36 36" aria-hidden="true">
+        <rect x="10" y="3" width="16" height="8" rx="4" fill="var(--azure-light)" stroke="var(--azure)" stroke-width="1.8"/>
+        <path d="M18 11v4" stroke="var(--wire)" stroke-width="1.8"/>
+        <polygon points="18,15 28,22 18,29 8,22" fill="var(--accent-light)" stroke="var(--accent)" stroke-width="1.8"/>
+        <path d="M18 29v4" stroke="var(--wire)" stroke-width="1.8"/>
+        <circle cx="18" cy="34" r="2" fill="var(--orange)"/>
+      </svg>
+      <div>
+        <h1>Chillflow Code</h1>
+        <small>Crea e prova i tuoi diagrammi di flusso</small>
+      </div>
+    </div>
+    <div class="tools">
+      <label class="sr" for="examples">Carica un esempio</label>
+      <select id="examples" class="btn">
+        <option value="" selected disabled>Carica esempio…</option>
+      </select>
+      <button class="btn" id="undoBtn" title="Annulla (Ctrl+Z)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 3 2 6l3 3"/><path d="M2 6h7.5a4 4 0 0 1 0 8H6"/></svg>Annulla</button>
+      <button class="btn" id="redoBtn" title="Ripristina (Ctrl+Y)"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m11 3 3 3-3 3"/><path d="M14 6H6.5a4 4 0 0 0 0 8H10"/></svg>Ripristina</button>
+      <button class="btn" id="ioBtn"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M8 2v8"/><path d="m5 7 3 3 3-3"/><path d="M2 11v3h12v-3"/></svg>Importa / Esporta</button>
+      <button class="btn" id="exportImgBtn" title="Salva come immagine"><svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="5.5" cy="5.5" r="1.5"/><path d="m14 10-3.5-3.5L3 14"/></svg>Esporta Immagine</button>
+      <a href="https://ko-fi.com" target="_blank" rel="noopener" class="btn kofi" style="background:var(--orange-bg);color:var(--orange-ink);border-color:rgba(249,115,22,0.3);" title="Sostieni lo sviluppo su Ko-fi"><svg viewBox="0 0 24 24" fill="currentColor" style="width:16px;height:16px"><path d="M2 8v8a4 4 0 0 0 4 4h8a4 4 0 0 0 4-4V8H2zm18 0h2a2 2 0 0 1 2 2v2a2 2 0 0 1-2 2h-2V8z"/></svg>Offrimi un caffè</a>
+    </div>
+  </header>
+
+  <main class="work">
+    <section class="stage" aria-label="Editor diagramma di flusso">
+      <div class="stagebar">
+        <div class="hint" id="hint">Clicca sul <b>+</b> per aggiungere un blocco. Clicca o trascina un blocco per gestirlo.</div>
+        <div class="zoom">
+          <button class="icon-btn" id="zoomOut" aria-label="Riduci zoom">−</button>
+          <span class="pct" id="zoomPct">100%</span>
+          <button class="icon-btn" id="zoomIn" aria-label="Aumenta zoom">+</button>
+          <button class="icon-btn fit" id="zoomFit">Adatta</button>
+        </div>
+      </div>
+      <div class="scroller" id="scroller" tabindex="0">
+        <svg id="chart" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Diagramma di flusso"></svg>
+      </div>
+    </section>
+
+    <aside class="side">
+      <section class="card run-card" aria-label="Controlli di esecuzione">
+        <h2>Esecuzione</h2>
+        <div class="runbar">
+          <button class="btn primary" id="runBtn"></button>
+          <button class="btn" id="stepBtn" title="Esegui un singolo blocco (Tasto S)"><svg viewBox="0 0 16 16" fill="currentColor"><path d="M3 2.5v11l7-5.5z"/><rect x="11" y="2.5" width="2" height="11" rx="1"/></svg>Passo</button>
+          <button class="btn stop-btn" id="stopBtn" title="Arresta esecuzione (Esc)"><svg viewBox="0 0 16 16" fill="currentColor"><rect x="3" y="3" width="10" height="10" rx="1.5"/></svg>Arresta</button>
+        </div>
+        <div class="speed">
+          <label for="speed">Velocità</label>
+          <input type="range" id="speed" min="1" max="5" step="1" value="3">
+          <output id="speedOut" for="speed">Media</output>
+        </div>
+        <div class="status">
+          <span class="chip" id="modeChip">Pronto</span>
+          <span class="stepno" id="stepNo">Passo 0</span>
+        </div>
+        <p class="msg" id="msg">Premi Esegui o Passo per iniziare il diagramma.</p>
+      </section>
+
+      <section class="card vars" aria-label="Variabili di sistema">
+        <h2>Variabili <span id="varCount"></span></h2>
+        <p class="empty" id="varsEmpty">Nessuna variabile definita.</p>
+        <div class="tablewrap" id="varsWrap" tabindex="0" hidden>
+          <table>
+            <thead><tr><th>Nome</th><th>Valore</th><th>Tipo</th></tr></thead>
+            <tbody id="varsBody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="card console" aria-label="Console di output">
+        <h2>Console <button class="icon-btn" id="clearLog" style="width:auto;height:22px;padding:0 6px;font-size:11px;font-weight:500">Pulisci</button></h2>
+        <div class="log" id="log" tabindex="0" aria-live="polite"></div>
+        <form class="inform" id="inForm" hidden autocomplete="off">
+          <label for="inField" id="inLabel">Inserisci un valore</label>
+          <div class="inrow">
+            <input id="inField" type="text" enterkeyhint="send">
+            <button class="btn lime" type="submit">Invia</button>
+          </div>
+        </form>
+      </section>
+    </aside>
+  </main>
+</div>
+
+<div class="backdrop" id="modal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="mTitle">
+    <header><h2 id="mTitle"></h2><button class="icon-btn" id="mClose" aria-label="Chiudi">×</button></header>
+    <div id="mBody"></div>
+  </div>
+</div>
+<div class="toast" id="toast" role="status" hidden></div>
+
+<script>
+(function(){
+"use strict";
+const $ = s => document.querySelector(s);
+const svg = $('#chart'), scroller = $('#scroller');
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+let uidN = 0;
+const uid = () => 'b' + Date.now().toString(36) + (uidN++).toString(36);
+const NB = ' ';
+
+/* ---------- Catalogo Tipi di Blocco ---------- */
+const TYPES = {
+  assign: {name:'Assegnazione', desc:'Memorizza un valore in una variabile o elemento di vettore'},
+  input:  {name:'Input', desc:'Leggi un valore inserito dall\'utente'},
+  output: {name:'Output', desc:'Mostra un valore nella console'},
+  if:     {name:'If (Condizione)', desc:'Scegli tra due percorsi in base alla condizione'},
+  while:  {name:'While (Ciclo)', desc:'Ripeti il blocco finché la condizione è vera'}
+};
+const A = (v,e) => ({id:uid(), type:'assign', var:v, expr:e});
+const I = v => ({id:uid(), type:'input', var:v});
+const O = e => ({id:uid(), type:'output', expr:e});
+const IF = (c,yes,no) => ({id:uid(), type:'if', cond:c, yes:yes||[], no:no||[]});
+const W = (c,body) => ({id:uid(), type:'while', cond:c, body:body||[]});
+
+const EXAMPLES = [
+  {key:'blank', name:'Progetto vuoto', build:()=>[]},
+  {key:'vec', name:'Vettori: Somma elementi', build:()=>[A('v','[10, 20, 30, 40]'), A('somma','0'), A('i','0'), W('i < len(v)',[A('somma','somma + v[i]'), A('i','i + 1')]), O('"Somma vettore = " + somma')]},
+  {key:'sum', name:'Somma da 1 a N', build:()=>[I('n'), A('somma','0'), A('i','1'), W('i <= n',[A('somma','somma + i'), A('i','i + 1')]), O('"Somma = " + somma')]},
+  {key:'evenodd', name:'Pari o dispari', build:()=>[I('n'), IF('n % 2 == 0',[O('n + " è PARI"')],[O('n + " è DISPARI"')])]},
+  {key:'larger', name:'Maggiore tra due numeri', build:()=>[I('a'), I('b'), IF('a > b',[A('maggiore','a')],[A('maggiore','b')]), O('"Il maggiore è: " + maggiore')]},
+  {key:'fact', name:'Calcolo del Fattoriale', build:()=>[I('n'), A('f','1'), W('n > 1',[A('f','f * n'), A('n','n - 1')]), O('"Fattoriale = " + f')]},
+  {key:'count', name:'Conto alla rovescia', build:()=>[A('n','5'), W('n > 0',[O('n'), A('n','n - 1')]), O('"Partenza!"')]}
+];
+
+/* ---------- Motore Espressioni (Supporto Vettori e Italiano/Inglese) ---------- */
+function tokenize(src){
+  const t = []; let i = 0;
+  while (i < src.length){
+    const c = src[i];
+    if (/\s/.test(c)){ i++; continue; }
+    if (/[0-9.]/.test(c)){
+      const m = /^(\d+\.?\d*|\.\d+)/.exec(src.slice(i));
+      if (!m) throw new Error(`Carattere inatteso "${c}"`);
+      t.push({k:'num', v:parseFloat(m[0])}); i += m[0].length; continue;
+    }
+    if (c === '"' || c === "'" || c === '“' || c === '”'){
+      const close = (c === '“') ? '”' : c;
+      let j = i + 1, s = '';
+      while (j < src.length && src[j] !== close && !(close === '"' && src[j] === '”')){ s += src[j]; j++; }
+      if (j >= src.length) throw new Error('Stringa senza virgolette di chiusura');
+      t.push({k:'str', v:s}); i = j + 1; continue;
+    }
+    if (/[A-Za-z_À-ÿ]/.test(c)){
+      const w = /^[A-Za-z_À-ÿ]\w*/.exec(src.slice(i))[0], lw = w.toLowerCase(); i += w.length;
+      if (lw === 'true' || lw === 'vero') t.push({k:'bool', v:true});
+      else if (lw === 'false' || lw === 'falso') t.push({k:'bool', v:false});
+      else if (['and','e','or','o','not','non','mod','div'].includes(lw)) {
+        const norm = ({'e':'and', 'o':'or', 'non':'not'})[lw] || lw;
+        t.push({k:'op', v:norm});
+      }
+      else t.push({k:'id', v:w});
+      continue;
+    }
+    const two = src.substr(i, 2);
+    if (['==','!=','<=','>=','<>','&&','||'].includes(two)){
+      t.push({k:'op', v:({'<>':'!=','&&':'and','||':'or'})[two] || two}); i += 2; continue;
+    }
+    if ('+-*/%()<>=!,^[]'.includes(c)){
+      t.push({k:'op', v:({'=':'==','!':'not','%':'mod'})[c] || c}); i++; continue;
+    }
+    if (c === '←') throw new Error('Usa il blocco Assegnazione per modificare una variabile');
+    throw new Error(`Carattere non valido "${c}"`);
+  }
+  return t;
+}
+
+const num = (f, n) => (...a) => { for (const x of a) if (typeof x !== 'number') throw new Error(`${n}() richiede valori numerici`); return f(...a); };
+const FUNCS = {
+  abs: {min:1, max:1, fn: num(Math.abs, 'ass')},
+  ass: {min:1, max:1, fn: num(Math.abs, 'ass')},
+  sqrt: {min:1, max:1, fn: num(x => { if (x < 0) throw new Error('radq() di un numero negativo'); return Math.sqrt(x); }, 'radq')},
+  radq: {min:1, max:1, fn: num(x => { if (x < 0) throw new Error('radq() di un numero negativo'); return Math.sqrt(x); }, 'radq')},
+  round: {min:1, max:1, fn: num(Math.round, 'arrotonda')},
+  arrotonda: {min:1, max:1, fn: num(Math.round, 'arrotonda')},
+  floor: {min:1, max:1, fn: num(Math.floor, 'piani')},
+  piani: {min:1, max:1, fn: num(Math.floor, 'piani')},
+  ceil: {min:1, max:1, fn: num(Math.ceil, 'soffitto')},
+  soffitto: {min:1, max:1, fn: num(Math.ceil, 'soffitto')},
+  int: {min:1, max:1, fn: num(Math.trunc, 'int')},
+  tronca: {min:1, max:1, fn: num(Math.trunc, 'int')},
+  pow: {min:2, max:2, fn: num(Math.pow, 'pot')},
+  pot: {min:2, max:2, fn: num(Math.pow, 'pot')},
+  min: {min:1, max:20, fn: num(Math.min, 'min')},
+  max: {min:1, max:20, fn: num(Math.max, 'max')},
+  random: {min:1, max:1, fn: num(n => Math.floor(Math.random() * n), 'casuale')},
+  casuale: {min:1, max:1, fn: num(n => Math.floor(Math.random() * n), 'casuale')},
+  len: {min:1, max:1, fn: x => { if (Array.isArray(x) || typeof x === 'string') return x.length; throw new Error('len() richiede un Vettore o Testo'); }},
+  lunghezza: {min:1, max:1, fn: x => { if (Array.isArray(x) || typeof x === 'string') return x.length; throw new Error('lunghezza() richiede un Vettore o Testo'); }},
+  push: {min:2, max:2, fn: (arr, val) => { if (!Array.isArray(arr)) throw new Error('push() richiede un Vettore'); arr.push(val); return arr.length; }},
+  pop: {min:1, max:1, fn: (arr) => { if (!Array.isArray(arr)) throw new Error('pop() richiede un Vettore'); if (arr.length === 0) throw new Error('pop() su vettore vuoto'); return arr.pop(); }}
+};
+
+function parse(src){
+  const toks = tokenize(src); let p = 0;
+  const isOp = v => toks[p] && toks[p].k === 'op' && toks[p].v === v;
+  const expect = v => { if (!isOp(v)) throw new Error(toks[p] ? `Atteso "${v}" ma trovato "${toks[p].v}"` : `Manca "${v}"`); p++; };
+  function orE(){ let l = andE(); while (isOp('or')){ p++; l = {t:'bin',op:'or',l,r:andE()}; } return l; }
+  function andE(){ let l = notE(); while (isOp('and')){ p++; l = {t:'bin',op:'and',l,r:notE()}; } return l; }
+  function notE(){ if (isOp('not')){ p++; return {t:'un',op:'not',e:notE()}; } return cmp(); }
+  function cmp(){
+    let l = add();
+    while (toks[p] && toks[p].k === 'op' && ['==','!=','<','<=','>','>='].includes(toks[p].v)){ const op = toks[p++].v; l = {t:'bin',op,l,r:add()}; }
+    return l;
+  }
+  function add(){ let l = mul(); while (isOp('+') || isOp('-')){ const op = toks[p++].v; l = {t:'bin',op,l,r:mul()}; } return l; }
+  function mul(){ let l = unary(); while (isOp('*') || isOp('/') || isOp('mod') || isOp('div')){ const op = toks[p++].v; l = {t:'bin',op,l,r:unary()}; } return l; }
+  function unary(){ if (isOp('-')){ p++; return {t:'un',op:'neg',e:unary()}; } if (isOp('+')){ p++; return unary(); } return pow(); }
+  function pow(){ const b = primary(); if (isOp('^')){ p++; return {t:'bin',op:'^',l:b,r:unary()}; } return b; }
+  
+  function primary(){
+    let expr;
+    if (isOp('[')){
+      p++; const items = [];
+      if (!isOp(']')){ items.push(orE()); while (isOp(',')){ p++; items.push(orE()); } }
+      expect(']');
+      expr = {t:'arr', items};
+    } else {
+      const tk = toks[p];
+      if (!tk) throw new Error('Espressione incompleta');
+      if (tk.k === 'num' || tk.k === 'str' || tk.k === 'bool'){ p++; expr = {t:'lit', v:tk.v}; }
+      else if (tk.k === 'id'){
+        p++;
+        if (isOp('(')){
+          p++; const args = [];
+          if (!isOp(')')){ args.push(orE()); while (isOp(',')){ p++; args.push(orE()); } }
+          expect(')');
+          const name = tk.v.toLowerCase(), f = FUNCS[name];
+          if (!f) throw new Error(`Funzione sconosciuta "${tk.v}"`);
+          if (args.length < f.min || args.length > f.max) throw new Error(`${name}() richiede ${f.min === f.max ? f.min : f.min + ' o più'} argomenti`);
+          expr = {t:'call', f:name, args};
+        } else {
+          expr = {t:'var', name:tk.v};
+        }
+      } else if (isOp('(')){
+        p++; expr = orE(); expect(')');
+      } else {
+        throw new Error(`Elemento non valido "${tk.v}"`);
+      }
+    }
+
+    while (isOp('[')){
+      p++; const idx = orE(); expect(']');
+      expr = {t:'idx', obj:expr, idx};
+    }
+    return expr;
+  }
+
+  if (!toks.length) throw new Error('Espressione vuota');
+  const e = orE();
+  if (p < toks.length) throw new Error(`Simbolo non previsto "${toks[p].v}"`);
+  return e;
+}
+
+const astCache = new Map();
+function getAst(src){
+  if (astCache.has(src)){ const c = astCache.get(src); if (c instanceof Error) throw c; return c; }
+  try { const a = parse(src); astCache.set(src, a); return a; }
+  catch (e){ astCache.set(src, e); throw e; }
+}
+
+function fmtNum(v){ return Number.isInteger(v) ? String(v) : String(parseFloat(v.toPrecision(12))); }
+function toText(v){
+  if (Array.isArray(v)) return '[' + v.map(toText).join(', ') + ']';
+  return typeof v === 'number' ? fmtNum(v) : typeof v === 'boolean' ? (v ? 'Vero' : 'Falso') : String(v);
+}
+function show(v){
+  if (Array.isArray(v)) return '[' + v.map(show).join(', ') + ']';
+  return typeof v === 'string' ? `"${v}"` : toText(v);
+}
+function typeOf(v){
+  if (Array.isArray(v)) return 'Vettore';
+  return typeof v === 'number' ? (Number.isInteger(v) ? 'Intero' : 'Reale') : typeof v === 'boolean' ? 'Booleano' : 'Testo';
+}
+function kind(v){ return Array.isArray(v) ? 'un vettore' : typeof v === 'number' ? 'un numero' : typeof v === 'boolean' ? 'Vero/Falso' : 'del testo'; }
+function finite(v){ if (!Number.isFinite(v)) throw new Error('Il risultato non è un numero valido'); return v; }
+
+function evalAst(n, env){
+  switch (n.t){
+    case 'lit': return n.v;
+    case 'arr': return n.items.map(item => evalAst(item, env));
+    case 'var':
+      if (!env.has(n.name)) throw new Error(`La variabile "${n.name}" non è ancora definita. Assegnala prima di usarla.`);
+      return env.get(n.name);
+    case 'idx': {
+      const obj = evalAst(n.obj, env);
+      if (!Array.isArray(obj) && typeof obj !== 'string') throw new Error('Indicizzazione supportata solo su Vettori e Testo');
+      const idx = evalAst(n.idx, env);
+      if (typeof idx !== 'number' || !Number.isInteger(idx)) throw new Error('L\'indice deve essere un numero intero');
+      if (idx < 0 || idx >= obj.length) throw new Error(`Indice ${idx} fuori dai limiti (lunghezza ${obj.length})`);
+      return obj[idx];
+    }
+    case 'call': return finiteIf(FUNCS[n.f].fn(...n.args.map(a => evalAst(a, env))));
+    case 'un': {
+      const v = evalAst(n.e, env);
+      if (n.op === 'neg'){ if (typeof v !== 'number') throw new Error(`Impossibile negare ${kind(v)}`); return -v; }
+      if (typeof v !== 'boolean') throw new Error(`"non" richiede Vero/Falso, ottenuto ${kind(v)}`);
+      return !v;
+    }
+    case 'bin': {
+      const op = n.op;
+      if (op === 'and' || op === 'or'){
+        const l = evalAst(n.l, env);
+        if (typeof l !== 'boolean') throw new Error(`"${op}" richiede Vero/Falso, ottenuto ${kind(l)}`);
+        if (op === 'and' && !l) return false;
+        if (op === 'or' && l) return true;
+        const r = evalAst(n.r, env);
+        if (typeof r !== 'boolean') throw new Error(`"${op}" richiede Vero/Falso, ottenuto ${kind(r)}`);
+        return r;
+      }
+      const l = evalAst(n.l, env), r = evalAst(n.r, env);
+      if (op === '+' && (typeof l === 'string' || typeof r === 'string')) return toText(l) + toText(r);
+      if (op === '==') return show(l) === show(r);
+      if (op === '!=') return show(l) !== show(r);
+      if (['<','<=','>','>='].includes(op)){
+        if (typeof l !== typeof r || typeof l === 'boolean') throw new Error(`Impossibile confrontare ${kind(l)} e ${kind(r)} con ${op}`);
+        return op === '<' ? l < r : op === '<=' ? l <= r : op === '>' ? l > r : l >= r;
+      }
+      if (typeof l !== 'number' || typeof r !== 'number') throw new Error(`Op "${op}" richiede numeri, inseriti ${kind(l)} e ${kind(r)}`);
+      switch (op){
+        case '+': return finite(l + r);
+        case '-': return finite(l - r);
+        case '*': return finite(l * r);
+        case '^': return finite(Math.pow(l, r));
+        case '/': if (r === 0) throw new Error('Divisione per zero'); return finite(l / r);
+        case 'div': if (r === 0) throw new Error('Divisione intera per zero'); return Math.trunc(l / r);
+        case 'mod': if (r === 0) throw new Error('Modulo per zero'); return l % r;
+      }
+    }
+  }
+  throw new Error('Espressione non valida');
+}
+function finiteIf(v){ return typeof v === 'number' ? finite(v) : v; }
+
+/* ---------- Gestione Stato, Cronologia & Memoria ---------- */
+const STORE = 'chillflow-code:v1';
+let program = null;
+let undoStack = [], redoStack = [];
+const snapshot = () => JSON.stringify(program);
+
+function sanitize(obj){
+  const body = Array.isArray(obj) ? obj : (obj && obj.body);
+  if (!Array.isArray(body)) throw new Error('Nessuna struttura valida trovata.');
+  const str = v => typeof v === 'string' ? v : (typeof v === 'number' ? String(v) : '');
+  let count = 0;
+  const seq = (a, depth) => {
+    if (depth > 40) throw new Error('I blocchi sono annidati troppo profondamente.');
+    return (Array.isArray(a) ? a : []).map(b => {
+      if (++count > 2000) throw new Error('Troppi blocchi nel diagramma.');
+      if (!b || typeof b !== 'object') throw new Error('Blocco non valido.');
+      switch (b.type){
+        case 'assign': return {id:uid(), type:'assign', var:str(b.var), expr:str(b.expr)};
+        case 'input': return {id:uid(), type:'input', var:str(b.var)};
+        case 'output': return {id:uid(), type:'output', expr:str(b.expr)};
+        case 'if': return {id:uid(), type:'if', cond:str(b.cond), yes:seq(b.yes, depth+1), no:seq(b.no, depth+1)};
+        case 'while': return {id:uid(), type:'while', cond:str(b.cond), body:seq(b.body, depth+1)};
+        default: throw new Error(`Tipo di blocco sconosciuto "${b.type}".`);
+      }
+    });
+  };
+  return {version:1, body:seq(body, 0)};
+}
+
+function save(){ try { localStorage.setItem(STORE, snapshot()); } catch (e){} }
+function loadSaved(){ try { const s = localStorage.getItem(STORE); if (s) return sanitize(JSON.parse(s)); } catch (e){} return null; }
+
+function canEdit(){ return !['running','paused','input'].includes(run.mode); }
+function commit(fn){
+  if (!canEdit()){ toast('Arresta l\'esecuzione per modificare il diagramma.'); return false; }
+  undoStack.push(snapshot()); if (undoStack.length > 100) undoStack.shift();
+  redoStack.length = 0;
+  fn(); afterChange(); return true;
+}
+function afterChange(){
+  save();
+  if (run.mode === 'done' || run.mode === 'error'){
+    run.active = null; run.verdict = null; run.changed = null;
+    setMode('idle'); run.msg = 'Diagramma modificato. Premi Esegui o Passo per avviarlo.';
+  }
+  render(); paint();
+}
+function undo(){ if (!canEdit() || !undoStack.length) return; redoStack.push(snapshot()); program = JSON.parse(undoStack.pop()); afterChange(); }
+function redo(){ if (!canEdit() || !redoStack.length) return; undoStack.push(snapshot()); program = JSON.parse(redoStack.pop()); afterChange(); }
+
+function locate(id, seq = program.body){
+  for (let i = 0; i < seq.length; i++){
+    const b = seq[i];
+    if (b.id === id) return {seq, index:i, block:b};
+    for (const k of ['yes','no','body']) if (b[k]){ const r = locate(id, b[k]); if (r) return r; }
+  }
+  return null;
+}
+function countInside(b){ let n = 0; for (const k of ['yes','no','body']) if (b[k]) for (const c of b[k]) n += 1 + countInside(c); return n; }
+
+/* ---------- Calcolo Layout e Rendering SVG ---------- */
+const C = {BH:42, GAP:48, HG:36, MERGE:18, TOP:22, LOOPP:18, EXITP:18, LOOPG:30, PAD:32, MAXC:36, TERMW:100};
+const mctx = document.createElement('canvas').getContext('2d');
+function tw(s){ mctx.font = '500 13px "JetBrains Mono", monospace'; return mctx.measureText(s).width; }
+
+function parts(b){
+  switch (b.type){
+    case 'assign': return [[b.var||'?',0],[NB+'←'+NB,1],[b.expr||'?',0]];
+    case 'input': return [['Input'+NB,1],[b.var||'?',0]];
+    case 'output': return [['Output'+NB,1],[b.expr||'?',0]];
+    default: return [[b.cond||'?',0]];
+  }
+}
+function clipParts(ps){
+  let budget = C.MAXC; const out = [];
+  for (const [t,k] of ps){
+    if (budget <= 0) break;
+    if (t.length > budget){ out.push([t.slice(0, budget-1) + '…', k]); budget = 0; }
+    else { out.push([t,k]); budget -= t.length; }
+  }
+  return out;
+}
+const ptext = ps => ps.map(p => p[0]).join('');
+const psvg = ps => ps.map(([t,k]) => k ? `<tspan class="kw">${esc(t)}</tspan>` : esc(t)).join('');
+
+let mc = new Map(), slots = [], layers = {w:'', b:'', s:''}, CW = 320, CH = 320;
+
+function diamond(w){ return {dw:Math.max(120, w + 68), dh:Math.round(Math.min(82, Math.max(60, 44 + w * 0.12)))}; }
+function measure(b){
+  if (mc.has(b)) return mc.get(b);
+  const w = tw(ptext(clipParts(parts(b))));
+  let r;
+  if (b.type === 'if'){
+    const {dw,dh} = diamond(w), no = mSeq(b.no), yes = mSeq(b.yes);
+    const noX = -Math.max(no.R + C.HG/2, dw/2 + 24), yesX = Math.max(yes.L + C.HG/2, dw/2 + 24);
+    r = {dw, dh, no, yes, noX, yesX, L:Math.max(-noX + no.L, dw/2 + 40), R:Math.max(yesX + yes.R, dw/2 + 40), h:dh/2 + Math.max(no.h, yes.h) + C.MERGE};
+  } else if (b.type === 'while'){
+    const {dw,dh} = diamond(w), body = mSeq(b.body);
+    const lx = Math.max(body.L, dw/2) + C.LOOPG, rx = Math.max(body.R, dw/2 + 30) + C.LOOPG;
+    r = {dw, dh, body, lx, rx, L:lx + 6, R:rx + 6, h:C.TOP + dh + body.h + C.LOOPP + C.EXITP};
+  } else {
+    const bw = Math.max(120, w + 36 + (b.type === 'assign' ? 0 : 22));
+    r = {bw, L:bw/2, R:bw/2, h:C.BH};
+  }
+  mc.set(b, r); return r;
+}
+function mSeq(seq){
+  let L = 16, R = 16, h = C.GAP;
+  for (const b of seq){ const m = measure(b); L = Math.max(L, m.L); R = Math.max(R, m.R); h += m.h + C.GAP; }
+  return {L, R, h};
+}
+
+const wire = d => { layers.w += `<path class="wire" d="${d}"/>`; };
+const arrowDown = (x,y) => { layers.w += `<polygon class="arrow" points="${x-5},${y-8} ${x+5},${y-8} ${x},${y}"/>`; };
+const arrowRight = (x,y) => { layers.w += `<polygon class="arrow" points="${x-8},${y-5} ${x-8},${y+5} ${x},${y}"/>`; };
+const dot = (x,y) => { layers.w += `<circle class="dot" cx="${x}" cy="${y}" r="3.2"/>`; };
+const label = (x,y,t,anchor) => { layers.w += `<text class="lbl" x="${x}" y="${y}" text-anchor="${anchor||'start'}">${t}</text>`; };
+
+function slot(seq, index, x, y){
+  slots.push({seq, index});
+  const k = slots.length - 1;
+  layers.s += `<g class="slot" data-slot="${k}" tabindex="0" role="button" aria-label="Aggiungi blocco qui"><circle class="hit" cx="${x}" cy="${y}" r="18"/><circle class="ring" cx="${x}" cy="${y}" r="9.5"/><path class="plus" d="M${x-4} ${y}H${x+4}M${x} ${y-4}V${y+4}"/></g>`;
+}
+function openG(b){
+  const full = ptext(parts(b));
+  return `<g class="blk t-${b.type}" data-id="${b.id}" tabindex="0" role="button" aria-label="${esc(TYPES[b.type].name + ': ' + full)}"><title>${esc(TYPES[b.type].name + ': ' + full)}</title>`;
+}
+function verdictG(x,y){ return `<g class="verdict" visibility="hidden" transform="translate(${x},${y})"><rect width="54" height="19" rx="9.5"/><text x="27" y="13.5">VERO</text></g>`; }
+function diamondShape(cx, y, dw, dh){ return `<polygon class="shape" points="${cx},${y} ${cx+dw/2},${y+dh/2} ${cx},${y+dh} ${cx-dw/2},${y+dh/2}"/>`; }
+
+function drawSeq(seq, cx, y){
+  for (let i = 0; i <= seq.length; i++){
+    wire(`M${cx} ${y}V${y + C.GAP}`);
+    slot(seq, i, cx, y + C.GAP/2);
+    y += C.GAP;
+    if (i < seq.length){ drawBlock(seq[i], cx, y); y += measure(seq[i]).h; }
+  }
+  return y;
+}
+function drawBlock(b, cx, y){
+  const m = measure(b), ps = clipParts(parts(b));
+  if (b.type === 'if'){
+    const {dw, dh} = m, cy = y + dh/2;
+    arrowDown(cx, y);
+    layers.b += openG(b) + diamondShape(cx, y, dw, dh) + `<text x="${cx}" y="${cy}" dy=".35em">${psvg(ps)}</text>` + verdictG(cx + 12, y - 27) + '</g>';
+    const nX = cx + m.noX, yX = cx + m.yesX;
+    wire(`M${cx - dw/2} ${cy}H${nX}`); wire(`M${cx + dw/2} ${cy}H${yX}`);
+    label(cx - dw/2 - 6, cy - 7, 'Falso', 'end'); label(cx + dw/2 + 6, cy - 7, 'Vero');
+    const ny = drawSeq(b.no, nX, cy), yy = drawSeq(b.yes, yX, cy);
+    const my = y + m.h;
+    wire(`M${nX} ${ny}V${my}H${yX}V${yy}`);
+    dot(cx, my);
+  } else if (b.type === 'while'){
+    const {dw, dh, lx, rx} = m, dy = y + C.TOP, cy = dy + dh/2;
+    wire(`M${cx} ${y}V${dy}`); arrowDown(cx, dy);
+    layers.b += openG(b) + diamondShape(cx, dy, dw, dh) + `<text x="${cx}" y="${cy}" dy=".35em">${psvg(ps)}</text>` + verdictG(cx + 12, dy - 27) + '</g>';
+    label(cx + 14, dy + dh + 14, 'Vero');
+    const by = drawSeq(b.body, cx, dy + dh);
+    const ly = by + C.LOOPP, ey = ly + C.EXITP;
+    wire(`M${cx} ${by}V${ly}H${cx - lx}V${y + C.TOP/2}H${cx - 2}`); arrowRight(cx, y + C.TOP/2);
+    wire(`M${cx + dw/2} ${cy}H${cx + rx}V${ey}H${cx}`);
+    label(cx + dw/2 + 6, cy - 7, 'Falso');
+    dot(cx, ey);
+  } else {
+    const x = cx - m.bw/2;
+    arrowDown(cx, y);
+    let shape;
+    if (b.type === 'assign') shape = `<rect class="shape" x="${x}" y="${y}" width="${m.bw}" height="${C.BH}" rx="6"/>`;
+    else { const k = 13; shape = `<polygon class="shape" points="${x+k},${y} ${x+m.bw},${y} ${x+m.bw-k},${y+C.BH} ${x},${y+C.BH}"/>`; }
+    layers.b += openG(b) + shape + `<text x="${cx}" y="${y + C.BH/2}" dy=".35em">${psvg(ps)}</text></g>`;
+  }
+}
+function term(id, y, text){
+  const x = -C.TERMW/2;
+  layers.b += `<g class="blk t-${id}" data-id="${id}"><rect class="shape" x="${x}" y="${y}" width="${C.TERMW}" height="${C.BH}" rx="${C.BH/2}"/><text x="0" y="${y + C.BH/2}" dy=".35em"><tspan class="kw">${text}</tspan></text></g>`;
+}
+
+function render(){
+  mc = new Map(); slots = []; layers = {w:'', b:'', s:''};
+  const body = mSeq(program.body);
+  const L = Math.max(body.L, C.TERMW/2, 160) + C.PAD, R = Math.max(body.R, C.TERMW/2, 160) + C.PAD;
+  let y = C.PAD;
+  term('start', y, 'Inizio'); y += C.BH;
+
+  if (program.body.length === 0) {
+    wire(`M0 ${y}V${y + C.GAP + 20}`);
+    slot(program.body, 0, 0, y + C.GAP/2 + 10);
+    layers.b += `<text class="empty-msg" x="0" y="${y + C.GAP + 45}">Diagramma vuoto. Clicca + per iniziare.</text>`;
+    y += C.GAP + 65;
+  } else {
+    y = drawSeq(program.body, 0, y);
+  }
+
+  arrowDown(0, y); term('end', y, 'Fine'); y += C.BH + C.PAD;
+  CW = L + R; CH = y;
+  svg.setAttribute('viewBox', `${-L} 0 ${CW} ${CH}`);
+  svg.innerHTML = layers.w + layers.b + layers.s;
+  applyZoom();
+  updateUndo();
+}
+
+/* ---------- Controllo Zoom ---------- */
+let zoom = 1;
+const clamp = (v, a, b) => Math.max(a, Math.min(b, v));
+function applyZoom(){ svg.style.width = (CW * zoom) + 'px'; svg.style.height = (CH * zoom) + 'px'; $('#zoomPct').textContent = Math.round(zoom * 100) + '%'; }
+function setZoom(z){ zoom = clamp(z, 0.3, 2.5); applyZoom(); }
+function fitZoom(widthOnly){
+  const sw = scroller.clientWidth - 24, sh = scroller.clientHeight - 24;
+  const z = widthOnly ? sw / CW : Math.min(sw / CW, sh / CH);
+  setZoom(Math.min(1.1, Math.max(0.6, z)));
+}
+$('#zoomIn').onclick = () => setZoom(zoom * 1.2);
+$('#zoomOut').onclick = () => setZoom(zoom / 1.2);
+$('#zoomFit').onclick = () => fitZoom(false);
+
+/* ---------- Esecutore Diagramma ---------- */
+class RunError extends Error { constructor(msg, id){ super(msg); this.blockId = id; } }
+function ev(src, b, env){
+  try { return evalAst(getAst(src), env); }
+  catch (e){ throw new RunError(e.message, b.id); }
+}
+function condOf(b, env){
+  const v = ev(b.cond, b, env);
+  if (typeof v !== 'boolean') throw new RunError(`La condizione "${b.cond}" restituisce ${show(v)}, ma deve essere Vero o Falso.`, b.id);
+  return v;
+}
+function setVar(env, name, v){ const had = env.has(name), prev = env.get(name); env.set(name, v); return {changed:name, had, prev}; }
+function parseInput(raw){
+  const t = raw.trim();
+  if (/^[-+]?(\d+\.?\d*|\.\d+)([eE][-+]?\d+)?$/.test(t)) return Number(t);
+  if (/^(vero|true)$/i.test(t)) return true;
+  if (/^(falso|false)$/i.test(t)) return false;
+  if (t.startsWith('[') && t.endsWith(']')) {
+    try { const ast = parse(t); return evalAst(ast, new Map()); } catch(e){}
+  }
+  return raw;
+}
+function* execProgram(env){
+  yield {kind:'step', id:'start', msg:'Inizio esecuzione del programma'};
+  yield* execSeq(program.body, env);
+  yield {kind:'step', id:'end', msg:'Programma terminato con successo'};
+}
+function* execSeq(seq, env){ for (const b of seq) yield* execBlock(b, env); }
+function* execBlock(b, env){
+  switch (b.type){
+    case 'assign': {
+      const val = ev(b.expr, b, env);
+      const varAst = getAst(b.var);
+      if (varAst.t === 'var'){
+        yield Object.assign({kind:'step', id:b.id, msg:`${b.var} ← ${show(val)}`}, setVar(env, varAst.name, val));
+      } else if (varAst.t === 'idx'){
+        const targetObj = evalAst(varAst.obj, env);
+        if (!Array.isArray(targetObj)) throw new RunError(`"${b.var}" non si riferisce a un Vettore valido`, b.id);
+        const targetIdx = evalAst(varAst.idx, env);
+        if (typeof targetIdx !== 'number' || !Number.isInteger(targetIdx)) throw new RunError('L\'indice deve essere un numero intero', b.id);
+        if (targetIdx < 0 || targetIdx >= targetObj.length) throw new RunError(`Indice ${targetIdx} fuori dai limiti (lunghezza ${targetObj.length})`, b.id);
+        targetObj[targetIdx] = val;
+        const rootVarName = varAst.obj.name || b.var.split('[')[0];
+        yield Object.assign({kind:'step', id:b.id, msg:`${b.var} ← ${show(val)}`}, setVar(env, rootVarName, targetObj));
+      } else {
+        throw new RunError(`Assegnazione non valida a "${b.var}"`, b.id);
+      }
+      break;
+    }
+    case 'input': {
+      const raw = yield {kind:'input', id:b.id, name:b.var};
+      const v = parseInput(raw);
+      yield Object.assign({kind:'step', id:b.id, msg:`${b.var} ← ${show(v)} (da input utente)`}, setVar(env, b.var, v));
+      break;
+    }
+    case 'output': {
+      const v = ev(b.expr, b, env);
+      yield {kind:'step', id:b.id, msg:`Output: ${toText(v)}`, out:toText(v)};
+      break;
+    }
+    case 'if': {
+      const c = condOf(b, env);
+      yield {kind:'step', id:b.id, msg:`${b.cond} → ${c ? 'Vero' : 'Falso'}, segue il ramo ${c ? 'Vero' : 'Falso'}`, verdict:c};
+      yield* execSeq(c ? b.yes : b.no, env);
+      break;
+    }
+    case 'while': {
+      for (;;){
+        const c = condOf(b, env);
+        yield {kind:'step', id:b.id, msg:`${b.cond} → ${c ? 'Vero, esegui il corpo del ciclo' : 'Falso, esci dal ciclo'}`, verdict:c};
+        if (!c) break;
+        yield* execSeq(b.body, env);
+      }
+      break;
+    }
+  }
+}
+
+/* ---------- Gestione Esecuzione e Interfaccia ---------- */
+const run = {gen:null, env:new Map(), mode:'idle', steps:0, timer:0, active:null, verdict:null, changed:null, msg:'Premi Esegui o Passo per procedere.', resume:false, inputName:''};
+let runClickCount = 0; // Contatore per il pop-up pubblicitario ogni 5 avvii
+const SPEEDS = [[1200,'Lenta'],[650,'Media'],[300,'Veloce'],[90,'Molto veloce'],[0,'Istantanea']];
+const LIMIT = 5000;
+const speedEl = $('#speed');
+const delay = () => SPEEDS[speedEl.value - 1][0];
+speedEl.oninput = () => { $('#speedOut').textContent = SPEEDS[speedEl.value - 1][1]; };
+
+function setMode(m){
+  run.mode = m;
+  svg.classList.toggle('locked', !canEdit());
+  const hint = $('#hint');
+  if (canEdit()){
+    hint.classList.remove('locked');
+    hint.innerHTML = 'Clicca sul <b>+</b> per aggiungere un blocco. Clicca o trascina un blocco per gestirlo.';
+  } else {
+    hint.classList.add('locked');
+    hint.textContent = 'Esecuzione in corso. Premi Arresta per modificare i blocchi.';
+  }
+}
+function startRun(){
+  clearTimeout(run.timer);
+  run.env = new Map(); run.gen = execProgram(run.env); run.steps = 0;
+  run.active = null; run.verdict = null; run.changed = null; run.resume = false;
+  clearLog(); log('Esecuzione avviata.', 'sys');
+  setMode('paused');
+}
+function handle(r){
+  if (r.done){ finish(); return false; }
+  const e = r.value;
+  if (e.kind === 'input'){
+    run.resume = run.mode === 'running';
+    setMode('input'); run.active = e.id; run.verdict = null; run.changed = null;
+    run.msg = `In attesa di un valore per: ${e.name}`; run.inputName = e.name;
+    showInput(e.name); return false;
+  }
+  run.steps++;
+  run.active = e.id; run.msg = e.msg;
+  run.changed = e.changed !== undefined ? {name:e.changed, had:e.had, prev:e.prev} : null;
+  run.verdict = e.verdict !== undefined ? {id:e.id, v:e.verdict} : null;
+  if (e.out !== undefined) log(e.out, 'out');
+  return true;
+}
+function advance(){
+  let r;
+  try { r = run.gen.next(); } catch (e){ fail(e); return false; }
+  return handle(r);
+}
+function fail(e){
+  clearTimeout(run.timer); run.gen = null; hideInput();
+  if (e && e.blockId) run.active = e.blockId;
+  run.verdict = null; run.changed = null;
+  const msg = (e && e.message) || 'Errore durante l\'esecuzione.';
+  run.msg = 'Errore: ' + msg;
+  log('Errore: ' + msg, 'err');
+  setMode('error');
+}
+function finish(){
+  clearTimeout(run.timer); run.gen = null;
+  run.msg = `Esecuzione completata in ${run.steps} passagg${run.steps === 1 ? 'io' : 'i'}.`;
+  log(run.msg, 'sys');
+  setMode('done');
+}
+function tick(){
+  run.timer = 0;
+  if (run.mode !== 'running') return;
+  const fast = delay() === 0, batch = fast ? 300 : 1;
+  for (let i = 0; i < batch; i++){
+    if (!advance()) break;
+    if (run.steps % LIMIT === 0){
+      setMode('paused');
+      log(`Pausa automatica dopo ${run.steps} passi. Verificare eventuali cicli infiniti. Premi Continua per proseguire.`, 'warn');
+      break;
+    }
+  }
+  paint(!fast);
+  if (run.mode === 'running') run.timer = setTimeout(tick, fast ? 0 : delay());
+}
+
+function onRun(){
+  if (run.mode === 'running'){ clearTimeout(run.timer); setMode('paused'); paint(); return; }
+  if (run.mode === 'input'){ run.resume = true; $('#inField').focus(); return; }
+  
+  if (canEdit()){
+    runClickCount++;
+    if (runClickCount % 5 === 0) {
+      showAdModal(() => {
+        startRun();
+        setMode('running'); paint(); tick();
+      });
+      return;
+    }
+    startRun();
+  }
+  setMode('running'); paint(); tick();
+}
+
+function onStep(){
+  if (run.mode === 'running'){ clearTimeout(run.timer); setMode('paused'); paint(); return; }
+  if (run.mode === 'input'){ run.resume = false; $('#inField').focus(); return; }
+  if (canEdit()) startRun();
+  advance(); paint(true);
+}
+
+function onStop(){
+  if (canEdit()) return;
+  clearTimeout(run.timer); run.gen = null; hideInput();
+  run.active = null; run.verdict = null; run.changed = null;
+  run.msg = 'Arrestato. Premi Esegui o Passo per ricominciare.';
+  log('Esecuzione arrestata.', 'sys');
+  setMode('idle'); paint();
+}
+
+function submitInput(raw){
+  if (run.mode !== 'input' || !run.gen) return;
+  hideInput(); log('› ' + raw, 'in');
+  setMode(run.resume ? 'running' : 'paused');
+  let r;
+  try { r = run.gen.next(raw); } catch (e){ fail(e); paint(); return; }
+  handle(r);
+  paint(true);
+  if (run.mode === 'running') run.timer = setTimeout(tick, delay());
+}
+
+$('#runBtn').onclick = onRun;
+$('#stepBtn').onclick = onStep;
+$('#stopBtn').onclick = onStop;
+$('#inForm').onsubmit = e => { e.preventDefault(); submitInput($('#inField').value); };
+
+function showAdModal(onCloseCallback){
+  openModal('Sponsor / Pubblicità', `
+    <div style="text-align:center; padding: 4px;">
+      <p style="margin:0 0 14px; font-size:13px; color:var(--muted);">Chillflow Code è gratuito! Questa breve pausa pubblicitaria ci aiuta a mantenerlo attivo.</p>
+      
+      <!-- CONTENITORE BANNER PUBBLICITARIO / GOOGLE ADSENSE -->
+      <div id="ad-slot-container" style="min-height:220px; background:var(--surface-2); border:2px dashed var(--rule); border-radius:12px; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:16px; margin-bottom:16px;">
+        <span style="font-size:11px; font-weight:700; letter-spacing:0.08em; color:var(--muted); text-transform:uppercase; margin-bottom:8px;">Spazio Pubblicitario</span>
+        <div style="font-size:13.5px; color:var(--ink); font-weight:600;">Banner Google AdSense</div>
+        <small style="color:var(--muted); margin-top:4px; font-size:11.5px;">Supporta il progetto visitando i nostri sponsor</small>
+      </div>
+
+      <div class="actions" style="justify-content:center;">
+        <button class="btn primary" id="adCloseBtn" style="padding:10px 24px; font-size:14px;">Continua l'Esecuzione</button>
+      </div>
+    </div>
+  `);
+
+  const closeBtn = $('#adCloseBtn');
+  if (closeBtn) {
+    closeBtn.onclick = () => {
+      closeModal();
+      if (typeof onCloseCallback === 'function') onCloseCallback();
+    };
+  }
+}
+
+/* ---------- Rendering dello Stato di Esecuzione ---------- */
+const ICON_PLAY = '<svg viewBox="0 0 16 16" fill="currentColor"><path d="M4 2.5v11l9-5.5z"/></svg>';
+const ICON_PAUSE = '<svg viewBox="0 0 16 16" fill="currentColor"><rect x="3.5" y="2.5" width="3" height="11" rx="1"/><rect x="9.5" y="2.5" width="3" height="11" rx="1"/></svg>';
+const MODE_LABEL = {idle:'Pronto', running:'In esecuzione', paused:'In pausa', input:'In attesa di input', done:'Completato', error:'Errore'};
+
+function paint(reveal){
+  svg.querySelectorAll('.blk.active,.blk.err').forEach(g => g.classList.remove('active','err'));
+  svg.querySelectorAll('.verdict').forEach(v => v.setAttribute('visibility','hidden'));
+  if (run.active){
+    const g = svg.querySelector(`.blk[data-id="${run.active}"]`);
+    if (g){
+      g.classList.add(run.mode === 'error' ? 'err' : 'active');
+      if (run.verdict && run.verdict.id === run.active){
+        const v = g.querySelector('.verdict');
+        if (v){
+          v.setAttribute('visibility','visible');
+          v.classList.toggle('v-true', run.verdict.v);
+          v.classList.toggle('v-false', !run.verdict.v);
+          v.querySelector('text').textContent = run.verdict.v ? 'VERO' : 'FALSO';
+        }
+      }
+      if (reveal) revealEl(g);
+    }
+  }
+  renderVars();
+  const chip = $('#modeChip');
+  chip.className = 'chip m-' + run.mode;
+  chip.textContent = MODE_LABEL[run.mode] || 'Pronto';
+  $('#stepNo').textContent = 'Passo ' + run.steps;
+  const msg = $('#msg');
+  msg.textContent = run.msg;
+  msg.classList.toggle('err', run.mode === 'error');
+  const rb = $('#runBtn');
+  rb.innerHTML = run.mode === 'running' ? ICON_PAUSE + 'Pausa' : ICON_PLAY + (run.mode === 'paused' || run.mode === 'input' ? 'Continua' : 'Esegui');
+  $('#stopBtn').disabled = canEdit();
+  updateUndo();
+}
+
+function revealEl(g){
+  const sr = scroller.getBoundingClientRect(), r = g.getBoundingClientRect();
+  let dx = 0, dy = 0;
+  if (r.top < sr.top + 30) dy = r.top - sr.top - 60; else if (r.bottom > sr.bottom - 30) dy = r.bottom - sr.bottom + 60;
+  if (r.left < sr.left + 20) dx = r.left - sr.left - 40; else if (r.right > sr.right - 20) dx = r.right - sr.right + 40;
+  if (dx || dy){
+    const smooth = delay() >= 300 && !matchMedia('(prefers-reduced-motion: reduce)').matches;
+    scroller.scrollBy({left:dx, top:dy, behavior: smooth ? 'smooth' : 'auto'});
+  }
+}
+
+function renderVars(){
+  const env = run.env, has = env && env.size > 0;
+  $('#varsEmpty').hidden = has; $('#varsWrap').hidden = !has;
+  $('#varCount').textContent = has ? `${env.size}` : '';
+  if (!has){ $('#varsBody').innerHTML = ''; return; }
+  let html = '';
+  for (const [k, v] of env){
+    const c = run.changed && run.changed.name === k;
+    const valStr = show(v);
+    const typeStr = typeOf(v);
+    const noteText = c ? (run.changed.had ? 'era ' + show(run.changed.prev) : 'nuova variabile') : '';
+    const fullValHover = esc(valStr + (noteText ? ` (${noteText})` : ''));
+    const noteHtml = c ? `<span class="was" title="${esc(noteText)}">${esc(noteText)}</span>` : '';
+    html += `<tr${c ? ' class="chg"' : ''}>`
+      + `<td class="vn" title="${esc(k)}">${esc(k)}</td>`
+      + `<td class="vv" title="${fullValHover}">${esc(valStr)}${noteHtml}</td>`
+      + `<td class="vt" title="${esc(typeStr)}">${esc(typeStr)}</td>`
+      + `</tr>`;
+  }
+  $('#varsBody').innerHTML = html;
+}
+
+/* ---------- Console Log ---------- */
+const logEl = $('#log');
+function log(text, cls){
+  const d = document.createElement('div'); d.className = 'ln ' + (cls || 'out'); d.textContent = text;
+  logEl.appendChild(d);
+  while (logEl.childNodes.length > 600) logEl.removeChild(logEl.firstChild);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+function clearLog(){ logEl.textContent = ''; }
+$('#clearLog').onclick = clearLog;
+
+function showInput(name){
+  $('#inLabel').textContent = `Inserisci un valore per "${name}":`;
+  const f = $('#inField'); f.value = '';
+  $('#inForm').hidden = false;
+  f.focus({preventScroll:true});
+  if (window.matchMedia('(max-width: 900px)').matches) $('#inForm').scrollIntoView({block:'nearest'});
+}
+function hideInput(){ $('#inForm').hidden = true; }
+
+/* ---------- Modali: Aggiungi / Modifica Blocchi ---------- */
+const modal = $('#modal'), mBody = $('#mBody'), mTitle = $('#mTitle');
+let lastFocus = null;
+
+function openModal(title, html){
+  lastFocus = document.activeElement;
+  mTitle.textContent = title; mBody.innerHTML = html; modal.hidden = false;
+  const f = mBody.querySelector('input,textarea,button'); if (f) f.focus();
+}
+function closeModal(){ modal.hidden = true; mBody.innerHTML = ''; if (lastFocus && lastFocus.focus) try { lastFocus.focus({preventScroll:true}); } catch (e){} }
+$('#mClose').onclick = closeModal;
+modal.addEventListener('mousedown', e => { if (e.target === modal) closeModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) closeModal(); });
+
+function typeIcon(t){
+  const cls = {assign:'t-assign', input:'t-input', output:'t-output', if:'t-if', while:'t-while'}[t];
+  let shape;
+  if (t === 'assign') shape = '<rect class="shape" x="4" y="6" width="44" height="18" rx="3"/>';
+  else if (t === 'input' || t === 'output') shape = '<polygon class="shape" points="10,6 48,6 42,24 4,24"/>';
+  else shape = '<polygon class="shape" points="26,2 48,15 26,28 4,15"/>';
+  const extra = t === 'while' ? '<path d="M26 28v1M4 15H1v-13h25" fill="none" stroke="var(--wire)" stroke-width="1.3"/>' : '';
+  const glyph = t === 'input' ? '<path d="M26 10v8m-3-3 3 3 3-3" fill="none" stroke="var(--io-s)" stroke-width="1.6" stroke-linecap="round"/>'
+              : t === 'output' ? '<path d="M26 19v-8m-3 3 3-3 3 3" fill="none" stroke="var(--io-s)" stroke-width="1.6" stroke-linecap="round"/>' : '';
+  return `<svg viewBox="0 0 52 30" class="ic ${cls}" aria-hidden="true">${extra}${shape}${glyph}</svg>`;
+}
+
+function openPicker(k){
+  if (!canEdit()){ toast('Arresta l\'esecuzione per modificare i blocchi.'); return; }
+  const s = slots[k]; if (!s) return;
+  const html = '<div class="types">' + Object.keys(TYPES).map(t =>
+    `<button class="type" data-type="${t}">${typeIcon(t)}<b>${TYPES[t].name}</b><span>${TYPES[t].desc}</span></button>`).join('') + '</div>';
+  openModal('Aggiungi un blocco', html);
+  mBody.querySelectorAll('.type').forEach(btn => btn.onclick = () => openForm(btn.dataset.type, null, s));
+}
+
+const FIELDS = {
+  assign: [['var','Nome Variabile o Indice (es. x o v[0])','es. totale oppure v[i]'],['expr','Valore o Espressione','es. totale + 1 oppure [10, 20]']],
+  input:  [['var','Variabile che riceve il valore','es. n']],
+  output: [['expr','Messaggio o Valore da stampare','es. "Risultato: " + totale']],
+  if:     [['cond','Condizione (Vero / Falso)','es. n > 0']],
+  while:  [['cond','Ripeti finché la condizione è vera','es. i < len(v)']]
+};
+const RESERVED = new Set(['and','or','not','true','false','mod','div','e','o','non','vero','falso']);
+
+const HELP = `<details class="help"><summary>Guida sintassi espressioni</summary><ul>
+<li>Numeri <code>3</code>, <code>2.5</code> · Testo <code>"Ciao"</code> · Vettori <code>[1, 2, 3]</code> · <code>vero</code>, <code>falso</code></li>
+<li>Aritmetica <code>+ - * /</code>, resto <code>%</code> o <code>mod</code>, div. intera <code>div</code></li>
+<li>Confronti <code>== != &lt; &lt;= &gt; &gt;=</code> · Logica <code>e</code>, <code>o</code>, <code>non</code></li>
+<li>Indicizzazione vettori: <code>v[0]</code>, <code>v[i]</code></li>
+<li>Funzioni: <code>len(v)</code>, <code>push(v, x)</code>, <code>pop(v)</code>, <code>ass()</code>, <code>radq()</code>, <code>casuale(n)</code></li></ul></details>`;
+
+function openForm(type, block, slotRef){
+  const isNew = !block;
+  const vals = block || {};
+  let html = `<form id="bForm" novalidate>`;
+  for (const [k, lab, ph] of FIELDS[type]){
+    html += `<div class="field"><label for="f_${k}">${lab}</label><input id="f_${k}" name="${k}" placeholder="${esc(ph)}" value="${esc(vals[k] || '')}" autocomplete="off" autocapitalize="off" spellcheck="false"><p class="ferr" id="e_${k}"></p></div>`;
+  }
+  if (type !== 'input') html += HELP;
+  html += `<div class="actions"><div class="grp">`;
+  if (!isNew){
+    const loc = locate(block.id);
+    html += `<button type="button" class="btn danger" id="bDel">Elimina</button>`;
+    html += `<button type="button" class="btn" id="bUp" ${loc.index === 0 ? 'disabled' : ''} aria-label="Sposta su">↑ Sposta su</button>`;
+    html += `<button type="button" class="btn" id="bDown" ${loc.index === loc.seq.length - 1 ? 'disabled' : ''} aria-label="Sposta giù">↓ Sposta giù</button>`;
+  }
+  html += `</div><div class="grp"><button type="button" class="btn" id="bCancel">Annulla</button><button type="submit" class="btn primary">${isNew ? 'Aggiungi blocco' : 'Salva'}</button></div></div></form>`;
+  openModal((isNew ? 'Nuovo blocco ' : 'Modifica blocco ') + TYPES[type].name, html);
+
+  $('#bCancel').onclick = closeModal;
+  $('#bForm').onsubmit = e => {
+    e.preventDefault();
+    const out = {}; let ok = true;
+    for (const [k] of FIELDS[type]){
+      const inp = $('#f_' + k), err = $('#e_' + k), v = inp.value.trim();
+      let msg = '';
+      if (!v) msg = 'Questo campo è obbligatorio.';
+      else if (k === 'var' && type === 'assign'){
+        try {
+          const ast = parse(v);
+          if (ast.t !== 'var' && ast.t !== 'idx') msg = 'Usare un nome variabile (es. x) o indice (es. v[0]).';
+        } catch(ex) { msg = ex.message; }
+      } else if (k === 'var'){
+        if (!/^[A-Za-z_À-ÿ]\w*$/.test(v)) msg = 'Usa solo lettere, cifre e _, iniziando con una lettera.';
+        else if (RESERVED.has(v.toLowerCase())) msg = `"${v}" è una parola riservata. Scegli un altro nome.`;
+      } else {
+        try { parse(v); } catch (ex){ msg = ex.message + '.'; }
+      }
+      err.textContent = msg; inp.setAttribute('aria-invalid', msg ? 'true' : 'false');
+      if (msg && ok){ inp.focus(); ok = false; }
+      out[k] = v;
+    }
+    if (!ok) return;
+    if (isNew){
+      const b = {id:uid(), type};
+      Object.assign(b, out);
+      if (type === 'if'){ b.yes = []; b.no = []; }
+      if (type === 'while') b.body = [];
+      commit(() => slotRef.seq.splice(slotRef.index, 0, b));
+    } else {
+      commit(() => Object.assign(block, out));
+    }
+    closeModal();
+  };
+  if (!isNew){
+    const inside = countInside(block);
+    const del = $('#bDel');
+    del.onclick = () => {
+      if (inside && !del.dataset.armed){ del.dataset.armed = '1'; del.textContent = `Eliminare con ${inside} blocchi interni?`; return; }
+      commit(() => { const l = locate(block.id); if (l) l.seq.splice(l.index, 1); });
+      closeModal();
+    };
+    const move = d => {
+      commit(() => {
+        const l = locate(block.id); const j = l.index + d;
+        if (j < 0 || j >= l.seq.length) return;
+        [l.seq[l.index], l.seq[j]] = [l.seq[j], l.seq[l.index]];
+      });
+      closeModal();
+    };
+    $('#bUp').onclick = () => move(-1);
+    $('#bDown').onclick = () => move(1);
+  }
+}
+
+/* ---------- Interazione Diagramma e Drag & Drop ---------- */
+function activate(target){
+  const s = target.closest('[data-slot]');
+  if (s){ openPicker(+s.dataset.slot); return; }
+  const g = target.closest('.blk[data-id]');
+  if (!g) return;
+  const id = g.dataset.id;
+  if (id === 'start' || id === 'end') return;
+  if (!canEdit()){ toast('Arresta l\'esecuzione per modificare i blocchi.'); return; }
+  const l = locate(id); if (l) openForm(l.block.type, l.block);
+}
+
+let dragState = null;
+let ghostEl = null;
+let activeHighlightSlot = null;
+
+function createGhost(title, type){
+  removeGhost();
+  ghostEl = document.createElement('div');
+  ghostEl.className = 'drag-ghost';
+  ghostEl.innerHTML = `${typeIcon(type)}<span>${esc(title)}</span>`;
+  document.body.appendChild(ghostEl);
+}
+
+function updateGhost(x, y){
+  if (ghostEl){
+    ghostEl.style.left = x + 'px';
+    ghostEl.style.top = y + 'px';
+  }
+}
+
+function removeGhost(){
+  if (ghostEl){ ghostEl.remove(); ghostEl = null; }
+}
+
+function isTargetInsideBlock(block, targetSeq){
+  if (!block) return false;
+  for (const k of ['yes', 'no', 'body']){
+    if (block[k]){
+      if (block[k] === targetSeq) return true;
+      for (const child of block[k]){
+        if (isTargetInsideBlock(child, targetSeq)) return true;
+      }
+    }
+  }
+  return false;
+}
+
+function findSlotAt(clientX, clientY){
+  if (ghostEl) ghostEl.style.display = 'none';
+  const el = document.elementFromPoint(clientX, clientY);
+  if (ghostEl) ghostEl.style.display = 'flex';
+  if (!el) return null;
+  const slotEl = el.closest('.slot[data-slot]');
+  if (!slotEl) return null;
+  const slotIndex = parseInt(slotEl.dataset.slot, 10);
+  return isNaN(slotIndex) ? null : slotIndex;
+}
+
+function isValidDrop(slotKey){
+  if (slotKey === null || slotKey === undefined || !dragState) return false;
+  const targetSlot = slots[slotKey];
+  if (!targetSlot) return false;
+  if (isTargetInsideBlock(dragState.block, targetSlot.seq)) return false;
+  return true;
+}
+
+function updateSlotHighlights(targetSlotKey){
+  if (activeHighlightSlot !== null && activeHighlightSlot !== targetSlotKey){
+    const el = svg.querySelector(`.slot[data-slot="${activeHighlightSlot}"]`);
+    if (el) el.classList.remove('drag-over', 'drag-invalid');
+  }
+  activeHighlightSlot = targetSlotKey;
+  if (targetSlotKey !== null){
+    const el = svg.querySelector(`.slot[data-slot="${targetSlotKey}"]`);
+    if (el){
+      const valid = isValidDrop(targetSlotKey);
+      el.classList.toggle('drag-over', valid);
+      el.classList.toggle('drag-invalid', !valid);
+      if (ghostEl) ghostEl.classList.toggle('invalid', !valid);
+    }
+  } else {
+    if (ghostEl) ghostEl.classList.remove('invalid');
+  }
+}
+
+function initDragAndDrop(){
+  svg.addEventListener('pointerdown', e => {
+    if (e.button !== 0) return;
+    if (!canEdit()) return;
+
+    const blkEl = e.target.closest('.blk[data-id]');
+    if (blkEl && !e.target.closest('.slot')){
+      const id = blkEl.dataset.id;
+      if (id === 'start' || id === 'end') return;
+      const loc = locate(id);
+      if (!loc) return;
+
+      dragState = {
+        blockId: id,
+        block: loc.block,
+        title: TYPES[loc.block.type].name + ': ' + ptext(parts(loc.block)),
+        startX: e.clientX,
+        startY: e.clientY,
+        isDragging: false,
+        wasDragged: false,
+        blkEl: blkEl
+      };
+    }
+  });
+
+  document.addEventListener('pointermove', e => {
+    if (!dragState) return;
+
+    const dx = e.clientX - dragState.startX;
+    const dy = e.clientY - dragState.startY;
+
+    if (!dragState.isDragging){
+      if (Math.hypot(dx, dy) > 5){
+        dragState.isDragging = true;
+        dragState.wasDragged = true;
+        createGhost(dragState.title, dragState.block.type);
+        if (dragState.blkEl) dragState.blkEl.classList.add('dragging');
+        document.body.style.userSelect = 'none';
+      } else {
+        return;
+      }
+    }
+
+    if (e.cancelable) e.preventDefault();
+    updateGhost(e.clientX, e.clientY);
+    const targetSlotKey = findSlotAt(e.clientX, e.clientY);
+    updateSlotHighlights(targetSlotKey);
+  });
+
+  document.addEventListener('pointerup', e => {
+    if (!dragState) return;
+
+    if (dragState.isDragging){
+      const slotKey = findSlotAt(e.clientX, e.clientY);
+      if (slotKey !== null && isValidDrop(slotKey)){
+        moveBlock(dragState.blockId, slots[slotKey]);
+      }
+      removeGhost();
+      if (dragState.blkEl) dragState.blkEl.classList.remove('dragging');
+      updateSlotHighlights(null);
+      document.body.style.userSelect = '';
+    } else {
+      activate(e.target);
+    }
+
+    dragState = null;
+  });
+
+  document.addEventListener('pointercancel', () => {
+    if (dragState && dragState.isDragging){
+      removeGhost();
+      if (dragState.blkEl) dragState.blkEl.classList.remove('dragging');
+      updateSlotHighlights(null);
+      document.body.style.userSelect = '';
+    }
+    dragState = null;
+  });
+}
+
+function moveBlock(blockId, targetSlot){
+  const loc = locate(blockId);
+  if (!loc) return;
+
+  const sourceSeq = loc.seq;
+  const sourceIndex = loc.index;
+  const targetSeq = targetSlot.seq;
+  let targetIndex = targetSlot.index;
+
+  if (sourceSeq === targetSeq){
+    if (targetIndex === sourceIndex || targetIndex === sourceIndex + 1) return;
+    if (targetIndex > sourceIndex) targetIndex--;
+  }
+
+  commit(() => {
+    sourceSeq.splice(sourceIndex, 1);
+    targetSeq.splice(targetIndex, 0, loc.block);
+  });
+
+  toast('Blocco spostato.');
+}
+
+svg.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' '){ e.preventDefault(); activate(e.target); } });
+
+/* ---------- Toolbar ed Esempi ---------- */
+const exSel = $('#examples');
+for (const ex of EXAMPLES){ const o = document.createElement('option'); o.value = ex.key; o.textContent = ex.name; exSel.appendChild(o); }
+exSel.onchange = () => {
+  const ex = EXAMPLES.find(x => x.key === exSel.value);
+  exSel.value = '';
+  if (!ex) return;
+  if (commit(() => { program = {version:1, body:ex.build()}; })){
+    scroller.scrollTo(0, 0); fitZoom(true);
+    toast(`Caricato "${ex.name}". Usa Annulla per ripristinare.`);
+  }
+};
+
+function updateUndo(){
+  $('#undoBtn').disabled = !canEdit() || !undoStack.length;
+  $('#redoBtn').disabled = !canEdit() || !redoStack.length;
+}
+$('#undoBtn').onclick = undo;
+$('#redoBtn').onclick = redo;
+
+/* Scorciatoie da tastiera globali */
+document.addEventListener('keydown', e => {
+  if (!modal.hidden) return;
+  const t = e.target;
+  if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.tagName === 'SELECT')) return;
+  
+  if ((e.ctrlKey || e.metaKey) && !e.altKey){
+    const k = e.key.toLowerCase();
+    if (k === 'z' && !e.shiftKey){ e.preventDefault(); undo(); }
+    else if (k === 'y' || (k === 'z' && e.shiftKey)){ e.preventDefault(); redo(); }
+  } else if (!e.ctrlKey && !e.metaKey && !e.altKey) {
+    if (e.code === 'Space') { e.preventDefault(); onRun(); }
+    else if (e.key.toLowerCase() === 's') { e.preventDefault(); onStep(); }
+    else if (e.key === 'Escape') { e.preventDefault(); onStop(); }
+  }
+});
+
+/* Import / Export JSON */
+$('#ioBtn').onclick = () => {
+  const json = JSON.stringify(program, (k, v) => k === 'id' ? undefined : v, 2);
+  openModal('Importa / Esporta', `<p class="note">Copia questo testo per salvare il tuo diagramma, oppure incolla un codice salvato per caricarlo.</p>
+    <label class="sr" for="ioText">Diagramma in formato JSON</label>
+    <textarea id="ioText" spellcheck="false">${esc(json)}</textarea>
+    <p class="ferr" id="ioErr"></p>
+    <div class="actions" style="margin-top:10px"><div class="grp"><button class="btn" id="ioCopy">Copia negli appunti</button>
+    <label class="btn" for="ioFile" style="cursor:pointer">Apri file JSON…</label><input type="file" id="ioFile" accept=".json,application/json,text/plain" hidden></div>
+    <div class="grp"><button class="btn" id="ioCancel">Chiudi</button><button class="btn primary" id="ioLoad">Carica</button></div></div>`);
+  const ta = $('#ioText');
+  $('#ioCancel').onclick = closeModal;
+  $('#ioCopy').onclick = () => {
+    const done = () => toast('Copiato negli appunti.');
+    const fallback = () => { ta.focus(); ta.select(); toast('Testo selezionato. Premi Ctrl+C (o ⌘C) per copiare.'); };
+    try { navigator.clipboard.writeText(ta.value).then(done, fallback); } catch (e){ fallback(); }
+  };
+  $('#ioFile').onchange = e => {
+    const f = e.target.files && e.target.files[0]; if (!f) return;
+    const rd = new FileReader(); rd.onload = () => { ta.value = String(rd.result); }; rd.readAsText(f);
+  };
+  $('#ioLoad').onclick = () => {
+    let p;
+    try { p = sanitize(JSON.parse(ta.value)); }
+    catch (e){ $('#ioErr').textContent = 'Impossibile caricare: ' + (e instanceof SyntaxError ? 'Formato JSON non valido.' : e.message); return; }
+    if (commit(() => { program = p; })){ closeModal(); fitZoom(true); toast('Diagramma di flusso caricato.'); }
+  };
+};
+
+/* Esportazione Immagine (PNG / SVG) */
+$('#exportImgBtn').onclick = () => {
+  openModal('Esporta Immagine Diagramma', `
+    <p class="note">Scarica un'immagine del diagramma per documenti o presentazioni.</p>
+    <div style="display:flex; flex-direction:column; gap:10px; margin-block:14px;">
+      <button class="btn primary" id="expPngBtn" style="padding:10px; font-size:13.5px">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="2" width="12" height="12" rx="2"/><circle cx="5.5" cy="5.5" r="1.5"/><path d="m14 10-3.5-3.5L3 14"/></svg>
+        Scarica Immagine PNG (Alta Risoluzione)
+      </button>
+      <button class="btn" id="expSvgBtn" style="padding:10px; font-size:13.5px">
+        <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 4h8v8H4z"/><circle cx="8" cy="8" r="2"/></svg>
+        Scarica Grafica Vettoriale SVG
+      </button>
+    </div>
+    <div class="actions"><button class="btn" id="expClose">Chiudi</button></div>
+  `);
+
+  $('#expClose').onclick = closeModal;
+
+  function getCleanSvgString(){
+    const clone = svg.cloneNode(true);
+    clone.querySelectorAll('.slot').forEach(s => s.remove());
+    const styleEl = document.createElement('style');
+    styleEl.textContent = `
+      text { font-family: 'JetBrains Mono', monospace; }
+      .wire { fill:none; stroke:#475569; stroke-width:2; stroke-linejoin:round; }
+      .arrow, .dot { fill:#475569; }
+      .blk .shape { stroke-width:2; }
+      .t-start .shape, .t-end .shape { fill:#e0f2fe; stroke:#0284c7; }
+      .t-assign .shape { fill:#ccfbf1; stroke:#0d9488; }
+      .t-input .shape, .t-output .shape { fill:#fef3c7; stroke:#d97706; }
+      .t-if .shape { fill:#e0e7ff; stroke:#4f46e5; }
+      .t-while .shape { fill:#e0f2fe; stroke:#2563eb; }
+      .blk text { font-weight:500; fill:#1e293b; text-anchor:middle; font-size:13px; }
+      .blk .kw { font-weight:700; }
+      .lbl { font-family:sans-serif; font-weight:700; font-size:11px; fill:#64748b; text-transform:uppercase; }
+      .empty-msg { font-family:sans-serif; fill:#64748b; font-size:13px; text-anchor:middle; }
+    `;
+    clone.insertBefore(styleEl, clone.firstChild);
+    return new XMLSerializer().serializeToString(clone);
+  }
+
+  $('#expSvgBtn').onclick = () => {
+    const svgStr = getCleanSvgString();
+    const blob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = 'chillflow-diagram.svg';
+    a.click(); URL.revokeObjectURL(url); closeModal(); toast('File SVG scaricato.');
+  };
+
+  $('#expPngBtn').onclick = () => {
+    const svgStr = getCleanSvgString();
+    const img = new Image();
+    const svgBlob = new Blob([svgStr], {type: 'image/svg+xml;charset=utf-8'});
+    const url = URL.createObjectURL(svgBlob);
+    img.onload = () => {
+      const canvas = document.createElement('canvas');
+      const scale = 2;
+      canvas.width = CW * scale;
+      canvas.height = CH * scale;
+      const ctx = canvas.getContext('2d');
+      ctx.fillStyle = getComputedStyle(document.body).getPropertyValue('--surface') || '#ffffff';
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+      ctx.scale(scale, scale);
+      ctx.drawImage(img, 0, 0);
+      URL.revokeObjectURL(url);
+      
+      const pngUrl = canvas.toDataURL('image/png');
+      const a = document.createElement('a'); a.href = pngUrl; a.download = 'chillflow-diagram.png';
+      a.click(); closeModal(); toast('Immagine PNG scaricata.');
+    };
+    img.src = url;
+  };
+};
+
+let toastT = 0;
+function toast(t){
+  const el = $('#toast'); el.textContent = t; el.hidden = false;
+  clearTimeout(toastT); toastT = setTimeout(() => { el.hidden = true; }, 2800);
+}
+
+/* ---------- Avvio Applicazione ---------- */
+program = loadSaved() || {version:1, body:[]};
+speedEl.oninput();
+setMode('idle');
+initDragAndDrop();
+render(); paint();
+requestAnimationFrame(() => fitZoom(true));
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { render(); paint(); });
+})();
+</script>
+
+</body>
+</html>
